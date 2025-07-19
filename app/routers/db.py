@@ -95,7 +95,7 @@ def get_wallet_balance(
         session: SessionDep
 ):
     """
-    Эндпоинт чтения баланса из таблицы walletbalance
+    Ручка чтения баланса из таблицы walletbalance
     """
     try:
         current_wallet_balance = session.query(WalletBalance).filter(WalletBalance.id == wallet_id).one()
@@ -124,7 +124,7 @@ def update_user(
         ]
 ):
     """
-    Эндпоинт обновления баланса кошелька в БД
+    Ручка обновления баланса кошелька в БД
     """
     try:
         db_data = session.get(WalletBalance, wallet_id)
@@ -151,7 +151,7 @@ def delete_user(
         session: SessionDep,
 ):
     """
-    Эндпоинт удаления записи о балансе кошелька из БД
+    Ручка удаления записи о балансе кошелька из БД
     """
     try:
         db_data = session.get(WalletBalance, wallet_id)
