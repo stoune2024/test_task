@@ -29,3 +29,15 @@ def create_database():
     # Закрываем соединение
     cursor.close()
     connection.close()
+
+
+def create_testing_database():
+    connection = psycopg2.connect(
+        user=f"{settings.postgres_user}",
+        password=f"{settings.postgres_password}"
+    )
+    connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    cursor = connection.cursor()
+    sql_create_database = cursor.execute(f'create database {settings.test_postgres_db_name}')
+    cursor.close()
+    connection.close()

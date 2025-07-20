@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Field, create_engine, Session
 from contextlib import asynccontextmanager
 from typing import Annotated
 from psycopg2.errors import DuplicateDatabase
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 
 from .db_connection import create_database
 from ..config import settings
@@ -15,14 +15,14 @@ class WalletBalance(SQLModel, table=True):
     wallet_balance: int
 
 
-engine = create_engine(f"postgresql+psycopg2://"
-                       f"{settings.postgres_user}:"
-                       f"{settings.postgres_password}@"
-                       f"{settings.postgres_host}:"
-                       f"{settings.postgres_port}/"
-                       f"{settings.postgres_db_name}",
-                       # echo=True
-                       )
+engine = create_engine(
+    f"postgresql+psycopg2://"
+    f"{settings.postgres_user}:"
+    f"{settings.postgres_password}@"
+    f"{settings.postgres_host}:"
+    f"{settings.postgres_port}/"
+    f"{settings.postgres_db_name}",
+)
 
 
 def create_db_and_tables():
@@ -78,9 +78,9 @@ def deposit(
         session.add(WalletBalance(id=wallet_id, wallet_balance=query_balance))
         session.commit()
         return {"message": "money submitted succesfully!"}
-    except IntegrityError as e:
+    except IntegrityError:
         session.rollback()
-        return {"message": f"something went wrong...Error {e} occured. Try again later"}
+        return {"message": "attempt to rewrite existing record, try PATCH method instead"}
 
 
 @router.get('/api/v1/wallets/{wallet_id}')
@@ -100,9 +100,9 @@ def get_wallet_balance(
     try:
         current_wallet_balance = session.query(WalletBalance).filter(WalletBalance.id == wallet_id).one()
         return current_wallet_balance.wallet_balance
-    except IntegrityError as e:
+    except NoResultFound:
         session.rollback()
-        return {"message": f"something went wrong...Error {e} occured. Try again later"}
+        return {'message': 'the mentioned above wallet id does not exist'}
 
 
 @router.patch('/api/v1/wallets/{wallet_id}/operation')
@@ -134,9 +134,9 @@ def update_user(
         session.commit()
         session.refresh(db_data)
         return {'message': 'data updated successfully'}
-    except IntegrityError as e:
+    except IntegrityError:
         session.rollback()
-        return {"message": f"something went wrong...Error {e} occured. Try again later"}
+        return {"message": "something went wrong..."}
 
 
 @router.delete("/api/v1/wallets/{wallet_id}/operation")
