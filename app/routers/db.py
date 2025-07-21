@@ -15,6 +15,9 @@ class WalletBalance(SQLModel, table=True):
     wallet_balance: int
 
 
+database_url = settings.get_db_url()
+
+
 engine = create_engine(
     f"postgresql+psycopg2://"
     f"{settings.postgres_user}:"
