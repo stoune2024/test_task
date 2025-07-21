@@ -89,7 +89,7 @@ def test_get_wallet_balance_invalid(client: TestClient):
     assert response.json() == {'message': 'the mentioned above wallet id does not exist'}
 
 
-def test_update_user(client: TestClient):
+def test_update_record(client: TestClient):
     client.post("/api/v1/wallets/5/operation?query_balance=26000")
     patch_response = client.patch("/api/v1/wallets/5/operation?query_balance=30000")
     get_response = client.get('/api/v1/wallets/5')
@@ -99,12 +99,28 @@ def test_update_user(client: TestClient):
     assert get_response.status_code == 200
     assert int(get_response.text) == 30000
 
-# def test_delete_hero(session: Session, client: TestClient, create_user: User):
-#     session.add(create_user)
-#     session.commit()
-#     response = client.delete(f"/users/{create_user.id}")
-#     data = response.json()
-#     user_in_db = session.get(User, create_user.id)
-#     assert response.status_code == 200
-#     assert data['ok'] == True
-#     assert user_in_db is None
+
+def test_update_record_invalid(client: TestClient):
+    client.post("/api/v1/wallets/5/operation?query_balance=26000")
+    patch_response = client.patch("/api/v1/wallets/5/operation?query_balance=53000")
+    client.delete("/api/v1/wallets/5/operation")
+    assert patch_response.status_code == 422
+
+
+def test_update_record_incomplete(client: TestClient):
+    client.post("/api/v1/wallets/5/operation?query_balance=26000")
+    patch_response = client.patch("/api/v1/wallets/5/operation")
+    client.delete("/api/v1/wallets/5/operation")
+    assert patch_response.status_code == 422
+
+
+def test_delete_record(client: TestClient):
+    client.post("/api/v1/wallets/33/operation?query_balance=13339")
+    response = client.delete("/api/v1/wallets/33/operation")
+    assert response.status_code == 200
+    assert response.json() == {'message': 'row deleted successfully!'}
+
+
+def test_delete_record_invalid(client: TestClient):
+    response = client.delete("/api/v1/wallets/0/operation")
+    assert response.status_code == 422

@@ -158,6 +158,6 @@ def delete_user(
         session.delete(db_data)
         session.commit()
         return {'message': 'row deleted successfully!'}
-    except IntegrityError as e:
+    except IntegrityError:
         session.rollback()
-        return {"message": f"something went wrong...Error {e} occured. Try again later"}
+        return {"message": "something went wrong..."}
