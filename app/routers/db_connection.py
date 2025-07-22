@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from sqlalchemy import MetaData
 
 from app.config import settings
 
@@ -16,7 +17,8 @@ def create_database():
     # Устанавливаем соединение с postgres
     connection = psycopg2.connect(
         user=f"{settings.postgres_user}",
-        password=f"{settings.postgres_password}"
+        password=f"{settings.postgres_password}",
+        host=f"{settings.docker_postgres_host}"
     )
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
@@ -41,3 +43,21 @@ def create_testing_database():
     sql_create_database = cursor.execute(f'create database {settings.test_postgres_db_name}')
     cursor.close()
     connection.close()
+
+
+convention = {
+    'all_column_names': lambda constraint, table: '_'.join([
+        column.name for column in constraint.columns.values()
+    ]),
+    'ix': 'ix__%(table_name)s__%(all_column_names)s',
+    'uq': 'uq__%(table_name)s__%(all_column_names)s',
+    'ck': 'ck__%(table_name)s__%(constraint_name)s',
+    'fk': (
+        'fk__%(table_name)s__%(all_column_names)s__'
+        '%(referred_table_name)s'
+    ),
+    'pk': 'pk__%(table_name)s'
+}
+
+# Registry for all tables
+metadata = MetaData(naming_convention=convention)

@@ -22,7 +22,8 @@ engine = create_engine(
     f"postgresql+psycopg2://"
     f"{settings.postgres_user}:"
     f"{settings.postgres_password}@"
-    f"{settings.postgres_host}:"
+    # f"{settings.postgres_host}:" # Хост для работы без Docker
+    f"{settings.docker_postgres_host}:"
     f"{settings.postgres_port}/"
     f"{settings.postgres_db_name}",
 )
@@ -30,8 +31,9 @@ engine = create_engine(
 
 def create_db_and_tables():
     try:
-        create_database()
-        SQLModel.metadata.create_all(engine)
+        # create_database()
+        metadata = SQLModel.metadata.create_all(engine)
+        return metadata
     except DuplicateDatabase:
         print('Attempt to create existing database. Nothing to worry about)')
 
