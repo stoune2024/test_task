@@ -2,8 +2,10 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from app.routers.db import database_url, WalletBalance
-from app.routers.db_connection import metadata
+import os
+import sys
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
+from app.routers.db import database_url, get_metadata, WalletBalance
 
 from alembic import context
 
@@ -21,7 +23,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = metadata
+target_metadata = get_metadata()
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
