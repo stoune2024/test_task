@@ -19,3 +19,6 @@
 в результате спешки.
 
 PS Такую практику я не одобряю.
+
+# условия задания
+![Alt text](/example.png?raw=true "Optional Title")
